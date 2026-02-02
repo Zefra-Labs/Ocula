@@ -12,28 +12,36 @@ struct TripsView: View {
 
     @State private var trips: [Trip] = Trip.mockTrips()
     @State private var selectedTrip: Trip = Trip.mockTrips().first!
-    @State private var detent: PresentationDetent = .fraction(0.2)
+    @State private var detent: TripsSheetDetent = .collapsed
     @State private var showTripDetail = false
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                mapLayer
-            }
-            .sheet(isPresented: .constant(true)) {
-                TripsBottomSheet(
-                    trips: $trips,
-                    selectedTrip: $selectedTrip,
-                    detent: $detent,
-                    showTripDetail: $showTripDetail
-                )
-                .presentationDetents(
-                    [.fraction(0.1), .medium, .large],
-                    selection: $detent
-                )
-                .presentationDragIndicator(.visible)
-                .presentationBackground(.clear)
-                .presentationBackgroundInteraction(.enabled)
+            GeometryReader { proxy in
+                ZStack(alignment: .bottom) {
+                    mapLayer
+                        .allowsHitTesting(detent != .large)
+
+                    TripsBottomSheet(
+                        trips: $trips,
+                        selectedTrip: $selectedTrip,
+                        detent: $detent,
+                        showTripDetail: $showTripDetail
+                    )
+                    .frame(height: sheetHeight(in: proxy))
+                    .frame(maxWidth: .infinity)
+                    .glassEffect(in: .rect(cornerRadius: AppTheme.Radius.xxlg))
+                    .overlay(alignment: .top) {
+                        Capsule()
+                            .fill(AppTheme.Colors.secondary.opacity(0.45))
+                            .frame(width: 36, height: 4)
+                            .padding(.top, AppTheme.Spacing.sm)
+                    }
+                    .padding(.horizontal, AppTheme.Spacing.md)
+                    .padding(.bottom, 10)
+                    .gesture(sheetDragGesture(in: proxy))
+                    .animation(.spring(response: 0.35, dampingFraction: 0.85), value: detent)
+                }
             }
             .navigationDestination(isPresented: $showTripDetail) {
                 TripDetailView(trip: selectedTrip)
@@ -44,25 +52,35 @@ struct TripsView: View {
     // MARK: - Map
     private var mapLayer: some View {
         Map {
-            // Route
-            MapPolyline(coordinates: selectedTrip.route)
-                .stroke(.blue, lineWidth: 6)
-            
             // Start
+            MapPolyline(coordinates: selectedTrip.route)
+                .stroke(.black, lineWidth: 3)
+
+            // START MARKER
             if let start = selectedTrip.route.first {
-                Annotation("Start", coordinate: start) {
+                Annotation("", coordinate: start) {
                     Circle()
-                        .fill(.green)
+                        .fill(.white)
                         .frame(width: 10, height: 10)
+                        .overlay(
+                            Circle()
+                                .stroke(.black, lineWidth: 3)
+                        )
+                        .shadow(radius: 1)
                 }
             }
-            
-            // End
+
+            // END MARKER
             if let end = selectedTrip.route.last {
-                Annotation("End", coordinate: end) {
-                    Circle()
-                        .fill(.red)
+                Annotation("", coordinate: end) {
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(.white)
                         .frame(width: 10, height: 10)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 2)
+                                .stroke(.black, lineWidth: 3)
+                        )
+                        .shadow(radius: 1)
                 }
             }
             
@@ -72,15 +90,57 @@ struct TripsView: View {
         }
         .ignoresSafeArea()
     }
+
+    private func availableHeight(in proxy: GeometryProxy) -> CGFloat {
+        proxy.size.height
+    }
+
+    private func sheetHeight(in proxy: GeometryProxy) -> CGFloat {
+        detent.height(availableHeight: availableHeight(in: proxy))
+    }
+
+    private func sheetDragGesture(in proxy: GeometryProxy) -> some Gesture {
+        let threshold: CGFloat = 80
+
+        return DragGesture(minimumDistance: 2)
+            .onEnded { value in
+                let translation = value.translation.height
+
+                if translation < -threshold && detent == .collapsed {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                        detent = .large
+                    }
+                } else if translation > threshold && detent == .large {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                        detent = .collapsed
+                    }
+                }
+            }
+    }
+}
+
+enum TripsSheetDetent: CaseIterable {
+    case collapsed
+    case large
+
+    func height(availableHeight: CGFloat) -> CGFloat {
+        switch self {
+        case .collapsed:
+            return max(70, availableHeight * 0.12)
+        case .large:
+            return availableHeight * 0.75
+        }
+    }
 }
 struct TripsBottomSheet: View {
 
     @Binding var trips: [Trip]
     @Binding var selectedTrip: Trip
-    @Binding var detent: PresentationDetent
+    @Binding var detent: TripsSheetDetent
     @Binding var showTripDetail: Bool
 
     @State private var searchText: String = ""
+    @FocusState private var isSearchFocused: Bool
 
     private var filteredTrips: [Trip] {
         guard !searchText.isEmpty else { return trips }
@@ -89,28 +149,43 @@ struct TripsBottomSheet: View {
             $0.startLocationName.localizedCaseInsensitiveContains(searchText) ||
             $0.endLocationName.localizedCaseInsensitiveContains(searchText) ||
             $0.dateString.localizedCaseInsensitiveContains(searchText) ||
-            $0.timeRangeString.localizedCaseInsensitiveContains(searchText)
-            
+            $0.timeRangeString.localizedCaseInsensitiveContains(searchText) ||
+            "\(Int($0.distanceKM)) km".localizedCaseInsensitiveContains(searchText) ||
+            "\($0.durationMinutes) mins".localizedCaseInsensitiveContains(searchText)
         }
     }
 
     private var isCollapsed: Bool {
-        detent == .fraction(0.1)
+        detent == .collapsed
     }
     var body: some View {
         VStack(spacing: 16) {
 
             // LAST TRIP (always visible)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Last Trip")
-                    .titleStyle()
+            if !(isSearchFocused && !isCollapsed) {
+                VStack(alignment: .leading, spacing: 8) {
+                    if isCollapsed {
+                        HStack {
+                            LastTripCompactRow(trip: selectedTrip) {
+                                showTripDetail = true
+                            }
+                            .padding(.top, AppTheme.Spacing.sm)
+                            .padding(.bottom, AppTheme.Spacing.lg)
+                            Spacer()
+                        }
+                    } else {
+                        Text("Last Trip")
+                            .title2Style()
+                            .foregroundStyle(AppTheme.Colors.secondary)
 
-                LastTripCompactRow(trip: selectedTrip) {
-                    showTripDetail = true
+                        LastTripCompactRow(trip: selectedTrip) {
+                            showTripDetail = true
+                        }
+                    }
                 }
             }
 
-            // EVERYTHING ELSE hidden at lowest detent
+            // EVERYTHING ELSE hidden at lowest detent//
             if !isCollapsed {
 
                 Divider()
@@ -118,34 +193,36 @@ struct TripsBottomSheet: View {
                 VStack(alignment: .leading, spacing: 12) {
 
                     Text("Recent Trips")
-                        .titleStyle()
+                        .title2Style()
+                        .foregroundStyle(AppTheme.Colors.secondary)
 
-                    ForEach(filteredTrips) { trip in
+                    SearchField(text: $searchText, placeholder: "Search Trips", isFocused: $isSearchFocused)
+
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 12) {
+                            ForEach(filteredTrips) { trip in
                         TripRow(
                             trip: trip,
                             isStarred: trip.isStarred,
                             onStar: toggleStar,
                             onTap: {
                                 selectedTrip = trip
-                                detent = .large
+                                showTripDetail = true
                             }
                         )
-                    }
+                            }
 
-                    if filteredTrips.isEmpty {
-                        ContentUnavailableView.search
+                            if filteredTrips.isEmpty {
+                                ContentUnavailableView.search
+                            }
+                        }
                     }
                 }
             }
-
-            Spacer()
         }
-        .searchable(
-            text: $searchText,
-            placement: .navigationBarDrawer,
-            prompt: "Search Trips"
-        )
-        .padding()
+        .padding(.top)
+        .padding(.horizontal)
+        
     }
 
 
@@ -168,28 +245,59 @@ struct LastTripCompactRow: View {
             HStack(spacing: 12) {
 
                 Image(systemName: "clock.arrow.circlepath")
-                    .font(.title3)
-                    .foregroundStyle(.blue)
+                    .title2Style()
+                    .foregroundStyle(AppTheme.Colors.primary)
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(trip.startLocationName) → \(trip.endLocationName)")
-                        .font(.subheadline.weight(.semibold))
+                        .headlineBoldStyle()
                         .foregroundStyle(AppTheme.Colors.primary)
 
-                    Text("\(trip.dateString) • \(trip.timeRangeString)")
-                        .font(.caption)
-                        .foregroundStyle(AppTheme.Colors.secondary)
+                    Text(meta)
+                        .subheadline()
+                        .foregroundColor(AppTheme.Colors.secondary)
+                        .lineLimit(1)
                 }
 
                 Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(AppTheme.Colors.secondary)
             }
-            .padding(AppTheme.Spacing.md)
-            .background(
-                RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
-                    .fill(AppTheme.Colors.primary.opacity(0.08))
-            )
+            .padding(.top, AppTheme.Spacing.md)
+            .padding(.bottom, AppTheme.Spacing.md)
+            .contentShape(RoundedRectangle(cornerRadius: AppTheme.Radius.xlg, style: .continuous))
         }
         .buttonStyle(.plain)
+        
+    }
+    private var meta: String {
+        "\(Int(trip.distanceKM)) km  •  \(trip.durationMinutes) mins  •  \(trip.endDate.relativeFormatted())"
+    }
+}
+
+struct SearchField: View {
+    @Binding var text: String
+    let placeholder: String
+    @FocusState.Binding var isFocused: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(AppTheme.Colors.secondary)
+
+            TextField(placeholder, text: $text)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .focused($isFocused)
+        }
+        .padding(.vertical, 10)
+        .padding(.horizontal, 12)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.mdlg, style: .continuous)
+                .fill(AppTheme.Colors.primary.opacity(0.08))
+        )
     }
 }
 
@@ -208,7 +316,8 @@ struct TripRow: View {
             HStack(spacing: 16) {
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("\(trip.startLocationName) to \(trip.endLocationName)")
+                    Text("\(trip.startLocationName) → \(trip.endLocationName)")
+                        .headlineStyle()
                         .foregroundColor(AppTheme.Colors.primary)
                         .lineLimit(1)
 
@@ -279,6 +388,32 @@ extension Trip {
             Trip(
                 id: UUID(),
                 startLocationName: "Miami",
+                endLocationName: "Ashmore",
+                startDate: now.addingTimeInterval(-7200),
+                endDate: now.addingTimeInterval(-3600),
+                distanceKM: 32,
+                durationMinutes: 38,
+                route: baseRoute,
+                hardBraking: 1,
+                hardAcceleration: 0,
+                sharpTurns: 1
+            ),
+            Trip(
+                id: UUID(),
+                startLocationName: "Burleigh",
+                endLocationName: "Southport",
+                startDate: now.addingTimeInterval(-7200),
+                endDate: now.addingTimeInterval(-3600),
+                distanceKM: 32,
+                durationMinutes: 38,
+                route: baseRoute,
+                hardBraking: 1,
+                hardAcceleration: 0,
+                sharpTurns: 1
+            ),
+            Trip(
+                id: UUID(),
+                startLocationName: "Arundel",
                 endLocationName: "Southport",
                 startDate: now.addingTimeInterval(-7200),
                 endDate: now.addingTimeInterval(-3600),
@@ -299,4 +434,3 @@ extension Trip {
 #Preview {
     TripsView()
 }
-

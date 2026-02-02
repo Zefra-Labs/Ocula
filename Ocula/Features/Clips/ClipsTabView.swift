@@ -10,13 +10,17 @@ import SwiftUI
 
 struct ClipsView: View {
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            Text("Clips")
-                .foregroundColor(.white)
+        navigationTitle("All Clips")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { print("Pressed") } label: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+            }
         }
     }
-}
 
 #Preview {
     ClipsView()

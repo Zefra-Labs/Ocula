@@ -118,7 +118,17 @@ private extension ProfileView {
 
     var driveStats: some View {
         ZStack {
-            
+            RadialGradient(
+                colors: [
+                    Color.blue.opacity(0.25),
+                    Color.clear
+                ],
+                center: .center,
+                startRadius: 20,
+                endRadius: 200
+            )
+            .frame(width: 300, height: 300)
+            .blur(radius: 50)
             HStack(spacing: -40) {
 
                 StatCircleView(

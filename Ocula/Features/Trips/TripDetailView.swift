@@ -28,13 +28,14 @@ struct TripDetailView: View {
                     safetyScoreSection
                 }
                 .padding()
+                .padding(.top, 20)
                 .background(
                     RoundedRectangle(cornerRadius: AppTheme.Radius.xxlg, style: .continuous)
                         .fill(.thinMaterial)
                 )
                 .offset(y: -28)
             }
-        } //
+        }
         .ignoresSafeArea(edges: .top)
         .navigationTitle("Trip Info")
         .navigationBarTitleDisplayMode(.inline)
@@ -128,7 +129,7 @@ struct TripDetailView: View {
 
     // MARK: - Header
     private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .center, spacing: 6) {
             Text("\(trip.startLocationName) → \(trip.endLocationName)")
                 .font(.title2.bold())
 
@@ -144,7 +145,7 @@ struct TripDetailView: View {
                 .font(.headline)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: AppTheme.Radius.lg) {
                     IncidentCard(title: "Hard Braking", count: trip.hardBraking, icon: "exclamationmark.triangle")
                     IncidentCard(title: "Acceleration", count: trip.hardAcceleration, icon: "speedometer")
                     IncidentCard(title: "Sharp Turns", count: trip.sharpTurns, icon: "arrow.triangle.turn.up.right.circle")
