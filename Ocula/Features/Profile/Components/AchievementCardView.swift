@@ -76,6 +76,9 @@ struct AchievementCardView: View {
         }
         .frame(width: 190)
         .padding(AppTheme.Spacing.md)
-        .glassEffect(in: RoundedRectangle(cornerRadius: AppTheme.Radius.xlg, style: .continuous))
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
+                .fill(AppTheme.Colors.primary.opacity(0.08))
+        )
     }
 }

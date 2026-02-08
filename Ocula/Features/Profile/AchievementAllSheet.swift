@@ -56,7 +56,10 @@ struct AchievementAllSheet: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(AppTheme.Spacing.md)
-            .glassEffect(in: RoundedRectangle(cornerRadius: AppTheme.Radius.xlg, style: .continuous))
+            .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
+                .fill(AppTheme.Colors.primary.opacity(0.08))
+        )
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: AppTheme.Spacing.sm) {

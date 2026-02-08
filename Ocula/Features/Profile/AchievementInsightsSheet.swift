@@ -41,8 +41,11 @@ struct AchievementInsightsSheet: View {
                 .foregroundColor(AppTheme.Colors.secondary)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(AppTheme.Spacing.md)
-            .glassEffect(in: RoundedRectangle(cornerRadius: AppTheme.Radius.xlg, style: .continuous))
+        .padding(AppTheme.Spacing.md)
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
+                .fill(AppTheme.Colors.primary.opacity(0.08))
+        )
 
             VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
                 Text("Actions")

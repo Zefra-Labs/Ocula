@@ -24,7 +24,10 @@ struct DriverScoreDetailView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(AppTheme.Spacing.lg)
-                    .glassEffect(in: RoundedRectangle(cornerRadius: AppTheme.Radius.xlg, style: .continuous))
+                    .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
+                .fill(AppTheme.Colors.primary.opacity(0.08))
+        )
 
                     VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
                         Text("What’s Affecting It")

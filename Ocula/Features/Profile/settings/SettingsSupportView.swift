@@ -78,12 +78,21 @@ struct SettingsReportProblemView: View {
         SettingsScaffold(title: "Report a Problem") {
             ScrollView {
                 VStack(spacing: AppTheme.Spacing.md) {
-                    settingsRow(title: "Include Diagnostics") {
-                        Toggle("", isOn: $includeLogs)
-                            .labelsHidden()
-                            .tint(.blue)
-                    }
-
+                    groupedSettingsRow([
+                        GroupedSettingsRowItem(
+                            title: "Include Diagnostics",
+                            subtitle: "Attach logs to reports"
+                        ) {
+                            Toggle("", isOn: $includeLogs)
+                                .labelsHidden()
+                                .tint(.blue)
+                        },
+                        GroupedSettingsRowItem(
+                            title: "Notifications",
+                            subtitle: "Manage alerts",
+                            action: { print("Compare") }
+                        )
+                    ])
                     settingsRow(title: "Describe the Issue") {
                         TextEditor(text: $description)
                             .frame(minHeight: 90, maxHeight: 110)

@@ -60,6 +60,9 @@ struct ProfileHeaderCardView: View {
             }
         }
         .padding(AppTheme.Spacing.md)
-        .glassEffect(in: RoundedRectangle(cornerRadius: AppTheme.Radius.xlg))
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
+                .fill(AppTheme.Colors.primary.opacity(0.08))
+        )
     }
 }

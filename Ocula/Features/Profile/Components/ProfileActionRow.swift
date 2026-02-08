@@ -44,10 +44,9 @@ func profileActionRow(
     }
         .padding(AppTheme.Spacing.md)
         .background(
-            RoundedRectangle(cornerRadius: AppTheme.Radius.xlg, style: .continuous)
-                .fill(AppTheme.Colors.surfaceDark.opacity(0.55))
+            RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
+                .fill(AppTheme.Colors.primary.opacity(0.08))
         )
-        .glassEffect(in: RoundedRectangle(cornerRadius: AppTheme.Radius.xlg, style: .continuous))
         .contentShape(Rectangle())
 
     if let destination {

@@ -74,19 +74,32 @@ private extension SettingsView {
                     destination: AnyView(SettingsPreferencesView())
                 )
 
+                
                 actionRow(
                     icon: "lock.fill",
                     title: "Privacy & Security",
                     subtitle: "Permissions and data controls",
                     destination: AnyView(SettingsSecurityView())
                 )
+                SettingsSectionHeader(title: "Group Settings")
+                groupedActionRow([
+                    GroupedActionRowItem(
+                        icon: "wand.and.stars",
+                        title: "Weekly driving report",
+                        subtitle: "Your habits, highlights, and improvements",
+                        destination: AnyView(SettingsSupportView())
+                    ),
+                    GroupedActionRowItem(
+                        icon: "chart.line.uptrend.xyaxis",
+                        title: "Compare time periods",
+                        subtitle: "See how your score changed",
+                        destination: AnyView(SettingsSupportView())
+                    )
+                ])
 
-                actionRow(
-                    icon: "questionmark.circle.fill",
-                    title: "Support",
-                    subtitle: "Help center and app info",
-                    destination: AnyView(SettingsSupportView())
-                )
+                
+
+
                 SettingsSectionHeader(title: "Settings")
                 actionRow(
                     icon: "rectangle.portrait.and.arrow.right",

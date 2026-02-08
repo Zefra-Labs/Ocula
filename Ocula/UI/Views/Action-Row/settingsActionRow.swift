@@ -82,8 +82,9 @@ private func settingsRowBase<Content: View>(
     return rowContent
         .frame(minHeight: 37, alignment: .center)
         .padding(AppTheme.Spacing.md)
-        .glassEffect(in:
+        .background(
             RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
+                .fill(AppTheme.Colors.primary.opacity(0.08))
         )
 }
 #Preview {
