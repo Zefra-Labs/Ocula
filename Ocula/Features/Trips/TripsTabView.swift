@@ -21,7 +21,6 @@ struct TripsView: View {
                 ZStack(alignment: .bottom) {
                     mapLayer
                         .allowsHitTesting(detent != .large)
-
                     TripsBottomSheet(
                         trips: $trips,
                         selectedTrip: $selectedTrip,

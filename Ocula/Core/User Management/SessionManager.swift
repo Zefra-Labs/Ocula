@@ -44,6 +44,11 @@ final class SessionManager: ObservableObject {
         }
     }
 
+    func refreshUser() {
+        guard let uid = auth.currentUser?.uid else { return }
+        fetchUser(uid: uid)
+    }
+
     func signOut() {
         try? auth.signOut()
         user = nil

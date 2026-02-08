@@ -58,9 +58,14 @@ struct SettingsProfileInfoView: View {
                     }
 
                     settingsRow(title: "Bio") {
-                        TextField("Short bio", text: $bio)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(maxWidth: 180)
+                        VStack(alignment: .trailing) {
+                            TextField("Short bio", text: $bio)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(maxWidth: 180)
+                            Toggle("", isOn: $autoUpload)
+                                .labelsHidden()
+                                .tint(.blue)
+                        }
                     }
 
                     settingsRow(title: "Auto Upload Clips") {

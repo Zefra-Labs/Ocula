@@ -56,7 +56,11 @@ struct SignupView: View {
                 createdAt: Date(),
                 lastLogin: Date(),
                 accountType: "standard",
-                onboardingComplete: false
+                onboardingComplete: false,
+                driverNickname: nil,
+                vehicleNickname: nil,
+                vehicleBrand: nil,
+                vehicleColorHex: nil
             )
 
             try? Firestore.firestore()

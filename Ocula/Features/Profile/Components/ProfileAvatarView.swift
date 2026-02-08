@@ -10,6 +10,7 @@ import SwiftUI
 struct ProfileAvatarView: View {
 
     let imageURL: String?
+    var size: CGFloat = 40
 
     var body: some View {
         Group {
@@ -24,7 +25,7 @@ struct ProfileAvatarView: View {
                 placeholder
             }
         }
-        .frame(width: 40, height: 40)
+        .frame(width: size, height: size)
         .clipShape(Circle())
     }
 

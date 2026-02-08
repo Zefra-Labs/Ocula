@@ -6,12 +6,18 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct MainTabView: View {
+    init() {
+        UITabBar.appearance().unselectedItemTintColor = UIColor.secondary
+        UITabBar.appearance().tintColor = UIColor.primary
+    }
+
     var body: some View {
         TabView {
             HomeView()
-                .tabItem { Image(systemName: "house.fill") }
+                .tabItem { Image(systemName: "car.fill") }
 
             ClipsView()
                 .tabItem { Image(systemName: "folder.fill") }
@@ -22,7 +28,6 @@ struct MainTabView: View {
             ProfileView()
                 .tabItem { Image(systemName: "person.fill") }
         }
-        .tint(.white)
     }
 }
 #Preview ("Ocula App (PREVIEW ONLY)"){

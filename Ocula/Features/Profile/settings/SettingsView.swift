@@ -59,6 +59,15 @@ private extension SettingsView {
                 )
 
                 actionRow(
+                    icon: "car.fill",
+                    title: "Car",
+                    subtitle: "Driver, vehicle, and color",
+                    destination: AnyView(SettingsCarView())
+                )
+                
+                SettingsSectionHeader(title: "Preferences")
+
+                actionRow(
                     icon: "slider.horizontal.3",
                     title: "Preferences",
                     subtitle: "Appearance, notifications, and units",
@@ -78,7 +87,7 @@ private extension SettingsView {
                     subtitle: "Help center and app info",
                     destination: AnyView(SettingsSupportView())
                 )
-
+                SettingsSectionHeader(title: "Settings")
                 actionRow(
                     icon: "rectangle.portrait.and.arrow.right",
                     iconColor: AppTheme.Colors.destructive,

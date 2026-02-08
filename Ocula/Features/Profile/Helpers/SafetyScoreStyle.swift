@@ -21,30 +21,33 @@ enum SafetyScoreStyle {
     }
 
     static func subtitle(for score: Int) -> String {
-        if score < 20 {
-            return "Needs a loooooot of work"
-        } else if score <= 60 {
-            return score < 40
-                ? "Needs some more work"
-                : "Needs a bit more work"
-        } else if score <= 80 {
-            return score < 65
-                ? "Needs just a little work"
-                : "Almost there!"
-        } else if score <= 99 {
-            return score < 95
-                ? "Keep up the great work!"
-                : "So Close! Keep going!"
-        } else if score >= 100 {
-            return "Amazing work!"
+        if score < 50 {
+            return "Hard braking is hurting your score"
+        } else if score < 70 {
+            return "Improve cornering to gain +8 points"
+        } else if score < 85 {
+            return "You're smoother than 62% of drivers"
         } else {
-            return "Keep up the great work!"
+            return "Elite control. Keep it up."
+        }
+    }
+
+    static func comparison(for score: Int) -> String {
+        if score < 50 {
+            return "You're smoother than 22% of drivers"
+        } else if score < 70 {
+            return "You're smoother than 41% of drivers"
+        } else if score < 85 {
+            return "You're smoother than 62% of drivers"
+        } else {
+            return "Top 12% in your region"
         }
     }
 
     static func color(for score: Int) -> Color {
         if score < 50 { return .red }
-        if score <= 80 { return .yellow }
+        if score < 70 { return .yellow }
+        if score < 85 { return .blue }
         return .green
     }
 }
