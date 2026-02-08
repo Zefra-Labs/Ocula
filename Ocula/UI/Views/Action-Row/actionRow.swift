@@ -48,8 +48,10 @@ func actionRow(
             .foregroundColor(AppTheme.Colors.secondary)
     }
         .padding(AppTheme.Spacing.md)
-        .glassEffect(in: RoundedRectangle(cornerRadius: AppTheme.Radius.xlg, style: .continuous))
-        .contentShape(Rectangle())
+        .background(
+            RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
+                .fill(AppTheme.Colors.primary.opacity(0.08))
+)
     
     if let destination {
         NavigationLink { destination } label: { rowContent }
