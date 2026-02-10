@@ -116,7 +116,7 @@ struct SettingsAppearanceView: View {
                             Text("Light").tag("Light")
                             Text("Dark").tag("Dark")
                         }
-                        .pickerStyle(.menu)
+                        .pickerStyle(.navigationLink)
                     }
 
                     settingsRow(title: "Accent Color") {

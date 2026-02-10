@@ -36,9 +36,10 @@ struct ProfileView: View {
                         Divider()
                             .overlay(AppTheme.Colors.surfaceDark.opacity(0.55))
 
-                        timeRangeSection
 
                         driverScoreSection
+                        
+                        timeRangeSection
 
                         insightSection
 
@@ -81,12 +82,8 @@ struct ProfileView: View {
 private extension ProfileView {
     var profileHeaderCard: some View {
         ProfileHeaderCardView(
-            displayName: userDisplayName,
-            nickname: driverNickname,
-            vehicleNickname: vehicleNickname,
-            vehicleBrand: vehicleBrand,
-            vehicleColorHex: vehicleColorHex,
-            memberSince: memberSinceText,
+            driverNickname: driverNickname,
+            email: userEmail,
             totalHours: "\(viewModel.stats.totalHoursDriven)h",
             imageURL: userImageURL
         )
@@ -98,7 +95,7 @@ private extension ProfileView {
                 .headlineStyle()
 
             TimeRangePickerView(selection: $selectedRange)
-                .padding(.horizontal, 2)
+                .padding(.horizontal, AppTheme.Spacing.sm)
 
             if let lastUpdated = viewModel.stats.lastUpdated {
                 Text("Updated \(lastUpdated.formatted(date: .abbreviated, time: .shortened))")
@@ -296,16 +293,15 @@ private extension ProfileView {
     var userImageURL: String? {
         Auth.auth().currentUser?.photoURL?.absoluteString
     }
+
+    var userEmail: String {
+        session.user?.email
+        ?? Auth.auth().currentUser?.email
+        ?? "hello@ocula.app"
+    }
 }
 
 private extension ProfileView {
-    var memberSinceText: String {
-        if let createdAt = session.user?.createdAt {
-            return memberSinceFormatter.string(from: createdAt)
-        }
-        return "Member since 2026"
-    }
-
     var drivingMetrics: [DrivingMetric] {
         viewModel.stats.breakdown.map { metric in
             DrivingMetric(
@@ -329,28 +325,11 @@ private extension ProfileView {
         }
     }
 
-    var memberSinceFormatter: DateFormatter {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMM yyyy"
-        return formatter
-    }
 }
 
 private extension ProfileView {
     var driverNickname: String {
         session.user?.driverNickname ?? "Night Runner"
-    }
-
-    var vehicleNickname: String {
-        session.user?.vehicleNickname ?? "Midnight Coupe"
-    }
-
-    var vehicleBrand: String {
-        session.user?.vehicleBrand ?? "BMW"
-    }
-
-    var vehicleColorHex: String {
-        session.user?.vehicleColorHex ?? "0F172A"
     }
 
     func loadProfileStats() {

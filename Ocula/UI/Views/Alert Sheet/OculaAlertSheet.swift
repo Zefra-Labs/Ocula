@@ -163,7 +163,7 @@ struct OculaAlertSheet: View {
         }
         return AnyView(
             content
-                .font(.system(size: 34, weight: .semibold))
+                .font(.system(size: 40, weight: .regular))
                 .foregroundStyle(iconTint)
         )
     }
@@ -332,10 +332,10 @@ private struct PreviewHost: View {
             .ignoresSafeArea()
             .oculaAlertSheet(
                 isPresented: $show,
-                icon: "exclamationmark.triangle.fill",
-                iconTint: .yellow,
-                title: "Unknown Error",
-                message: "Just a second, we're gathering some quick diagnostic info...",
+                icon: "info.bubble.fill",
+                iconTint: .blue,
+                title: "This page is currently unavailable.",
+                message: "We're sorry for the inconvenience. We're working on it.",
                 showsIconRing: false,                 // remove outer circle
                 iconModifier: { image in               // base styling (optional)
                     AnyView(image.symbolRenderingMode(.hierarchical))
@@ -351,8 +351,6 @@ private struct PreviewHost: View {
                     }
                 },
                 iconAnimationActive: animateIcon,      // condition
-                autoDismissAfter: 21,
-                onAutoDismiss: { print("Auto dismissed") }
             )
     }
 }

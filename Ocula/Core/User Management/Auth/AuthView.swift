@@ -8,7 +8,11 @@ import SwiftUI
 
 struct AuthView: View {
 
+    @EnvironmentObject var session: SessionManager
     @State private var showSignup = false
+    @State private var showAuthSuccess = false
+    @State private var animateIcon = false
+    @State private var successTitle = "Success"
 
     var body: some View {
         VStack(spacing: 24) {
@@ -20,9 +24,17 @@ struct AuthView: View {
                 .foregroundStyle(.secondary)
 
             if showSignup {
-                SignupView()
+                SignupView(onAuthSuccess: {
+                    successTitle = "Account Created"
+                    animateIcon = true
+                    showAuthSuccess = true
+                })
             } else {
-                LoginView()
+                LoginView(onAuthSuccess: {
+                    successTitle = "Signed In"
+                    animateIcon = true
+                    showAuthSuccess = true
+                })
             }
 
             Button(showSignup ? "Already have an account?" : "Create an account") {
@@ -31,7 +43,31 @@ struct AuthView: View {
             .buttonStyle(PrimaryButtonStyle())
             
         }
+        .oculaAlertSheet(
+            isPresented: $session.showSignOutSuccess,
+            icon: "checkmark",
+            iconTint: .green,
+            title: "Success",
+            message: "",
+            showsIconRing: false,
+            iconAnimationActive: animateIcon,
+            autoDismissAfter: 1.5,
+            onAutoDismiss: { print("Auto dismissed") }
+        )
         .padding()
+        .oculaAlertSheet(
+            isPresented: $showAuthSuccess,
+            icon: "checkmark",
+            iconTint: .green,
+            title: successTitle,
+            message: "",
+            showsIconRing: false,
+            iconAnimationActive: animateIcon,
+            autoDismissAfter: 2,
+            onAutoDismiss: {
+                session.shouldDeferMainView = false
+            }
+        )
     }
 }
 #Preview {

@@ -11,59 +11,79 @@ import FirebaseAuth
 struct SettingsView: View {
 
     @EnvironmentObject var session: SessionManager
+    @State private var animateIcon = false
 
     var body: some View {
         SettingsScaffold(title: "Settings") {
-            VStack(spacing: AppTheme.Spacing.lg) {
-                settingsHeader
                 settingsActions
-            }
         }
+        .oculaAlertSheet(
+            isPresented: $session.showSignOutOverlay,
+            icon: "circle.dotted",
+            iconTint: .yellow,
+            title: "Signing Out...",
+            message: "",
+            showsIconRing: false,
+            iconModifier: { image in
+                AnyView(image.symbolRenderingMode(.hierarchical))
+            },
+            iconAnimator: { image, _ in
+                if #available(iOS 17.0, *) {
+                    return AnyView(
+                        image
+                            .symbolEffect(.rotate.byLayer, options: .repeat(.continuous))
+                    )
+                } else {
+                    return AnyView(image)
+                }
+            },
+            iconAnimationActive: animateIcon
+        )
     }
 }
 
 private extension SettingsView {
 
-    var settingsHeader: some View {
-        HStack(spacing: AppTheme.Spacing.md) {
-            ProfileAvatarView(imageURL: userImageURL)
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(userDisplayName)
-                    .headlineStyle()
-                    .fontWeight(.bold)
-
-                Text(userEmail)
-                    .captionStyle()
-            }
-
-            Spacer()
-        }
-        .padding(.top, AppTheme.Spacing.lg)
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .glassEffect(in:
-            RoundedRectangle(cornerRadius: AppTheme.Radius.xlg)
-        )
-    }
-
     var settingsActions: some View {
         ScrollView {
             VStack(spacing: 12) {
-                SettingsSectionHeader(title: "Settings")
-
-                actionRow(
-                    icon: "person.fill",
-                    title: "Account",
-                    subtitle: "Profile, email, and devices",
-                    destination: AnyView(SettingsAccountView())
-                )
-
+                SettingsSectionHeader(title: "Account")
+                groupedActionRow([
+                    GroupedActionRowItem(
+                        icon: "person.fill",
+                        title: "Profile",
+                        subtitle: "Manage your profile details like email, nickname and more",
+                        destination: AnyView(SettingsAccountView())
+                    ),
+                    GroupedActionRowItem(
+                        icon: "lock.fill",
+                        title: "Privacy & Security",
+                        subtitle: "Manage your account's security and data controls",
+                        destination: AnyView(SettingsSecurityView())
+                    )
+                ])
+                SettingsSectionHeader(title: "App")
                 actionRow(
                     icon: "car.fill",
                     title: "Car",
                     subtitle: "Driver, vehicle, and color",
                     destination: AnyView(SettingsCarView())
                 )
+                SettingsSectionHeader(title: "Account Settings")
+                groupedActionRow([
+                    GroupedActionRowItem(
+                        icon: "person.fill",
+                        title: "Profile",
+                        subtitle: "Manage your profile details like email, nickname and more",
+                        destination: AnyView(SettingsAccountView())
+                    ),
+                    GroupedActionRowItem(
+                        icon: "car.fill",
+                        title: "Car",
+                        subtitle: "Driver, vehicle, and color",
+                        destination: AnyView(SettingsSecurityView())
+                    )
+                ])
                 
                 SettingsSectionHeader(title: "Preferences")
 
@@ -105,9 +125,16 @@ private extension SettingsView {
                     icon: "rectangle.portrait.and.arrow.right",
                     iconColor: AppTheme.Colors.destructive,
                     title: "Sign Out",
-                    subtitle: "Sign out of your account",
+                    subtitle: "Sign out of your account on this device",
                     action: {
-                        session.signOut()
+                        animateIcon = true
+                        session.signOut { success in
+                            if success {
+                                animateIcon = false
+                            } else {
+                                animateIcon = false
+                            }
+                        }
                     }
                 )
             }

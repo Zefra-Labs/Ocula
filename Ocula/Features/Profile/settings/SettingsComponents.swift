@@ -75,6 +75,7 @@ struct SettingsSectionHeader: View {
             .font(.headline)
             .foregroundColor(AppTheme.Colors.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, AppTheme.Spacing.md)
     }
 }
 
