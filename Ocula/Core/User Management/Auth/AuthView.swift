@@ -19,11 +19,51 @@ struct AuthView: View {
     @StateObject private var viewModel = AuthViewModel()
     @State private var mode: Mode = .landing
     @State private var animateIcon = false
+    @State private var animateBackground = false
 
     var body: some View {
         ZStack {
             AppTheme.Colors.background
                 .ignoresSafeArea()
+
+            GeometryReader { proxy in
+                ZStack {
+                    RadialGradient(
+                        colors: [
+                            Color.blue.opacity(0.21),
+                            Color.clear
+                        ],
+                        center: .center,
+                        startRadius: 20,
+                        endRadius: 200
+                    )
+                    .frame(width: 300, height: 300)
+                    .blur(radius: 65)
+                    .offset(
+                        x: animateBackground ? -proxy.size.width * 0.14 : -proxy.size.width * 0.45,
+                        y: animateBackground ? -proxy.size.height * 0.1 : -proxy.size.height * 0.3
+                    )
+
+                    RadialGradient(
+                        colors: [
+                            Color.white.opacity(0.15),
+                            Color.clear
+                        ],
+                        center: .center,
+                        startRadius: 30,
+                        endRadius: 220
+                    )
+                    .frame(width: 380, height: 380)
+                    .blur(radius: 80)
+                    .offset(
+                        x: animateBackground ? proxy.size.width * 0.5 : proxy.size.width * 0.4,
+                        y: animateBackground ? proxy.size.height * 0.3 : proxy.size.height * 0.1
+                    )
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .allowsHitTesting(false)
+            }
+            .ignoresSafeArea()
 
             GeometryReader { proxy in
                 ScrollView(showsIndicators: false) {
@@ -107,6 +147,21 @@ struct AuthView: View {
             }
         )
         .oculaAlertSheet(
+            isPresented: $viewModel.showErrorSheet,
+            icon: "person.crop.circle.badge.exclamationmark",
+            iconTint: .red,
+            title: viewModel.errorTitle,
+            message: viewModel.errorMessage ?? "We could not complete that request. Please try again.",
+            showsIconRing: false,
+            iconModifier: { image in
+                AnyView(image.symbolRenderingMode(.multicolor))
+            },
+            primaryTitle: "Okay",
+            primaryAction: {
+                viewModel.clearErrors()
+            }
+        )
+        .oculaAlertSheet(
             isPresented: $session.showSignOutSuccess,
             icon: "checkmark",
             iconTint: .green,
@@ -121,6 +176,11 @@ struct AuthView: View {
                 animateIcon = true
             }
         }
+        .preferredColorScheme(.dark)
+        .onAppear {
+            animateBackground = true
+        }
+        .animation(.easeInOut(duration: 12).repeatForever(autoreverses: true), value: animateBackground)
     }
 
     private func setMode(_ newMode: Mode) {
@@ -170,10 +230,11 @@ private struct AuthLandingView: View {
                 .foregroundStyle(AppTheme.Colors.secondary)
 
             Spacer(minLength: 24)
+            
 
             VStack(alignment: .leading, spacing: 12) {
                 AuthPrimaryGhostButton(title: "Log In", action: onLogin)
-                AuthGhostButton(title: "Sign Up", action: onSignUp)
+                AuthGhostButton(title: "Create an Account", action: onSignUp)
 
                 AuthDivider()
                     .padding(.vertical, 6)

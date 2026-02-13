@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SafariServices
 
 struct AuthCard<Content: View>: View {
     let content: Content
@@ -156,7 +157,7 @@ struct AuthGhostButton: View {
                 .font(AppTheme.Fonts.semibold(15))
                 .foregroundStyle(AppTheme.Colors.primary)
         }
-        .buttonStyle(PrimaryLightButtonStyle())
+        .buttonStyle(SecondaryLightButtonStyle())
     }
 }
 struct AuthPrimaryGhostButton: View {
@@ -169,7 +170,7 @@ struct AuthPrimaryGhostButton: View {
                 .font(AppTheme.Fonts.semibold(15))
                 .foregroundStyle(AppTheme.Colors.primary)
         }
-        .buttonStyle(SecondaryLightButtonStyle())
+        .buttonStyle(PrimaryLightButtonStyle())
     }
 }
 struct AuthInlineMessage: View {
@@ -239,7 +240,55 @@ struct AuthDivider: View {
         }
     }
 }
+struct TermsConditionsLinkConsent: View {
+    @State private var isShowingLegal = false
 
+    private var legalAttributedText: AttributedString {
+        var text = AttributedString("Terms of Use and Privacy Policy")
+        if let range = text.range(of: "Terms of Use") {
+            text[range].font = AppTheme.Fonts.bold(12)
+        }
+        if let range = text.range(of: " and ") {
+            text[range].font = AppTheme.Fonts.semibold(12)
+        }
+        if let range = text.range(of: "Privacy Policy") {
+            text[range].font = AppTheme.Fonts.bold(12)
+        }
+        return text
+    }
+
+    var body: some View {
+        Button {
+            isShowingLegal = true
+        } label: {
+            VStack(alignment: .center, spacing: 4) {
+                Text("By continuing, you agree to our")
+                    .font(AppTheme.Fonts.semibold(12))
+                    .foregroundStyle(AppTheme.Colors.secondary)
+
+                Text(legalAttributedText)
+                .foregroundStyle(AppTheme.Colors.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .multilineTextAlignment(.center)
+        }
+        .buttonStyle(.plain)
+        .contentShape(Rectangle())
+        .sheet(isPresented: $isShowingLegal) {
+            SafariWebView(url: URL(string: "https://milescomedia.com.au/legal")!)
+        }
+    }
+}
+
+private struct SafariWebView: UIViewControllerRepresentable {
+    let url: URL
+
+    func makeUIViewController(context: Context) -> SFSafariViewController {
+        SFSafariViewController(url: url)
+    }
+
+    func updateUIViewController(_ uiViewController: SFSafariViewController, context: Context) {}
+}
 struct PasswordRequirementsView: View {
     let password: String
 

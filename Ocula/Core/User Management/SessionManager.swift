@@ -61,6 +61,7 @@ final class SessionManager: ObservableObject {
                 onboardingComplete: false,
                 driverNickname: nil,
                 vehicleNickname: nil,
+                vehiclePlate: nil,
                 vehicleBrand: nil,
                 vehicleColorHex: nil
             )

@@ -17,6 +17,7 @@ struct AppUser: Identifiable, Codable {
     let onboardingComplete: Bool
     let driverNickname: String?
     let vehicleNickname: String?
+    let vehiclePlate: String?
     let vehicleBrand: String?
     let vehicleColorHex: String?
 }

@@ -23,7 +23,7 @@ struct RotatingLoadingView: View {
             .rotationEffect(.degrees(angle))
             .task {
                 // Reset, then start a forever-rotation animation explicitly
-                angle = 0
+                angle = 10
                 withAnimation(.linear(duration: duration).repeatForever(autoreverses: false)) {
                     angle = 360
                 }

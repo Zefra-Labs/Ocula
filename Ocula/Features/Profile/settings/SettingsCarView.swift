@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
@@ -14,40 +15,40 @@ struct SettingsCarView: View {
 
     @State private var driverNickname: String = ""
     @State private var vehicleNickname: String = ""
+    @State private var vehiclePlate: String = ""
     @State private var selectedBrand: CarBrand = .bmw
-    @State private var selectedColor: CarColorOption = CarColorOption.standard[0]
+    @State private var customBrand: String = ""
+    @State private var vehicleColor: Color = Color(hex: "2563EB") ?? .blue
     @State private var isSaving = false
     @State private var saveMessage: String? = nil
+    @State private var showSuccessSheet = false
+    @State private var animateIcon = false
 
     var body: some View {
+        
         SettingsScaffold(title: "Car") {
             SettingsList {
-                Section(header: SettingsSectionHeader(title: "Driver")) {
+                Section(header: SettingsSectionHeader(title: "Driver Nickname")) {
                     TextField("Driver nickname", text: $driverNickname)
                 }
 
                 Section(header: SettingsSectionHeader(title: "Vehicle")) {
                     TextField("Vehicle nickname", text: $vehicleNickname)
+                    
+                    TextField("License plate", text: $vehiclePlate)
 
                     Picker("Car Brand", selection: $selectedBrand) {
-                        ForEach(CarBrand.allCases) { brand in
+                        ForEach(brandOptions) { brand in
                             Text(brand.rawValue).tag(brand)
                         }
                     }
                     .pickerStyle(.navigationLink)
 
-                    Picker("Car Color", selection: $selectedColor) {
-                        ForEach(CarColorOption.standard) { option in
-                            HStack(spacing: 8) {
-                                Circle()
-                                    .fill(Color(hex: option.hex) ?? AppTheme.Colors.secondary)
-                                    .frame(width: 16, height: 16)
-                                Text(option.name)
-                            }
-                            .tag(option)
-                        }
+                    if selectedBrand == .other {
+                        TextField("Custom brand", text: $customBrand)
                     }
-                    .pickerStyle(.navigationLink)
+
+                    ColorPicker("Car Color", selection: $vehicleColor, supportsOpacity: false)
                 }
 
                 Section {
@@ -57,32 +58,51 @@ struct SettingsCarView: View {
                     .buttonStyle(PrimaryButtonStyle())
                     .disabled(isSaving)
                 }
-
-                if let saveMessage {
-                    Section {
-                        Text(saveMessage)
-                            .captionStyle()
-                    }
-                }
+                
             }
             .onAppear(perform: loadCurrentValues)
         }
+        .oculaAlertSheet(
+            isPresented: $showSuccessSheet,
+            icon: "checkmark",
+            iconTint: .green,
+            title: "Saved",
+            message: "",
+            showsIconRing: false,
+            iconAnimationActive: animateIcon,
+            autoDismissAfter: 1.8,
+            onAutoDismiss: {
+                showSuccessSheet = false
+                animateIcon = false
+            }
+        )
     }
 }
 
 private extension SettingsCarView {
+    var brandOptions: [CarBrand] {
+        [.other] + CarBrand.allCases.filter { $0 != .other }
+    }
+
 
     func loadCurrentValues() {
         driverNickname = session.user?.driverNickname ?? "Night Runner"
         vehicleNickname = session.user?.vehicleNickname ?? "Midnight Coupe"
+        vehiclePlate = session.user?.vehiclePlate ?? ""
 
-        if let brand = session.user?.vehicleBrand, let matched = CarBrand(rawValue: brand) {
-            selectedBrand = matched
+        if let brand = session.user?.vehicleBrand {
+            if let matched = CarBrand(rawValue: brand) {
+                selectedBrand = matched
+                customBrand = ""
+            } else {
+                selectedBrand = .other
+                customBrand = brand
+            }
         }
 
         if let colorHex = session.user?.vehicleColorHex,
-           let matched = CarColorOption.standard.first(where: { $0.hex.lowercased() == colorHex.lowercased() }) {
-            selectedColor = matched
+           let color = Color(hex: colorHex) {
+            vehicleColor = color
         }
     }
 
@@ -92,11 +112,20 @@ private extension SettingsCarView {
         isSaving = true
         saveMessage = nil
 
+        let brandToStore: String = {
+            if selectedBrand == .other {
+                let trimmed = customBrand.trimmingCharacters(in: .whitespacesAndNewlines)
+                return trimmed.isEmpty ? CarBrand.other.rawValue : trimmed
+            }
+            return selectedBrand.rawValue
+        }()
+
         let payload: [String: Any] = [
             "driverNickname": driverNickname,
             "vehicleNickname": vehicleNickname,
-            "vehicleBrand": selectedBrand.rawValue,
-            "vehicleColorHex": selectedColor.hex
+            "vehiclePlate": vehiclePlate,
+            "vehicleBrand": brandToStore,
+            "vehicleColorHex": colorHex(from: vehicleColor)
         ]
 
         Firestore.firestore().collection("users").document(uid).setData(payload, merge: true) { error in
@@ -107,9 +136,26 @@ private extension SettingsCarView {
                 } else {
                     saveMessage = "Saved"
                     session.refreshUser()
+                    animateIcon = true
+                    showSuccessSheet = true
                 }
             }
         }
+    }
+
+    func colorHex(from color: Color) -> String {
+        let uiColor = UIColor(color)
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+        guard uiColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return "000000"
+        }
+        return String(format: "%02X%02X%02X",
+                      Int(red * 255),
+                      Int(green * 255),
+                      Int(blue * 255))
     }
 }
 

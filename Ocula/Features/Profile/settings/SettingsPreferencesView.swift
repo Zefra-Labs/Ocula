@@ -116,7 +116,7 @@ struct SettingsUnitsView: View {
                         Text("Kilometers").tag(0)
                         Text("Miles").tag(1)
                     }
-                    .pickerStyle(.segmented)
+                    .pickerStyle(.navigationLink)
                 }
 
                 Section(header: SettingsSectionHeader(title: "Speed")) {

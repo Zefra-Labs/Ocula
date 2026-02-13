@@ -33,6 +33,8 @@ final class AuthViewModel: ObservableObject {
     @Published var successMessage: String = ""
     @Published var successContext: SuccessContext = .auth
 
+    @Published var showErrorSheet: Bool = false
+    @Published var errorTitle: String = "Unable to Continue"
     @Published var errorMessage: String?
     @Published var showForgotPassword: Bool = false
 
@@ -64,6 +66,8 @@ final class AuthViewModel: ObservableObject {
 
     func clearErrors() {
         errorMessage = nil
+        errorTitle = "Unable to Continue"
+        showErrorSheet = false
     }
 
     func prefillResetEmail() {
@@ -75,11 +79,11 @@ final class AuthViewModel: ObservableObject {
     func signIn() async -> Bool {
         clearErrors()
         guard isEmailValid else {
-            errorMessage = "Enter a valid email address."
+            presentError(title: "Unable to Sign In", message: "Please enter a valid email address.")
             return false
         }
         guard isPasswordValid else {
-            errorMessage = "Password must be at least 6 characters."
+            presentError(title: "Unable to Sign In", message: "Your password must be at least 6 characters.")
             return false
         }
 
@@ -98,7 +102,7 @@ final class AuthViewModel: ObservableObject {
         } catch {
             isLoading = false
             showLoadingSheet = false
-            errorMessage = mapAuthError(error)
+            presentError(title: "Unable to Sign In", message: mapAuthError(error))
             return false
         }
     }
@@ -106,15 +110,15 @@ final class AuthViewModel: ObservableObject {
     func signUp() async -> Bool {
         clearErrors()
         guard isEmailValid else {
-            errorMessage = "Enter a valid email address."
+            presentError(title: "Unable to Create Account", message: "Please enter a valid email address.")
             return false
         }
         guard isPasswordValid else {
-            errorMessage = "Password must be at least 6 characters"
+            presentError(title: "Unable to Create Account", message: "Please choose a password with at least 6 characters.")
             return false
         }
         guard isConfirmPasswordValid else {
-            errorMessage = "Passwords do not match."
+            presentError(title: "Unable to Create Account", message: "The passwords do not match.")
             return false
         }
 
@@ -136,6 +140,7 @@ final class AuthViewModel: ObservableObject {
                 onboardingComplete: false,
                 driverNickname: nil,
                 vehicleNickname: nil,
+                vehiclePlate: nil,
                 vehicleBrand: nil,
                 vehicleColorHex: nil
             )
@@ -155,7 +160,7 @@ final class AuthViewModel: ObservableObject {
         } catch {
             isLoading = false
             showLoadingSheet = false
-            errorMessage = mapAuthError(error)
+            presentError(title: "Unable to Create Account", message: mapAuthError(error))
             return false
         }
     }
@@ -163,7 +168,7 @@ final class AuthViewModel: ObservableObject {
     func sendPasswordReset() async -> Bool {
         clearErrors()
         guard canSubmitReset else {
-            errorMessage = "Enter a valid email address."
+            errorMessage = "Please enter a valid email address."
             return false
         }
 
@@ -203,7 +208,7 @@ final class AuthViewModel: ObservableObject {
         } catch {
             isLoading = false
             showLoadingSheet = false
-            errorMessage = mapAuthError(error)
+            presentError(title: "Unable to Sign In", message: mapAuthError(error))
             return false
         }
     }
@@ -237,25 +242,50 @@ final class AuthViewModel: ObservableObject {
         if let code = AuthErrorCode(rawValue: nsError.code) {
             switch code {
             case .wrongPassword:
-                return "Incorrect password."
+                return "The password you entered does not match this account."
             case .userNotFound:
-                return "No account found for that email."
+                return "We could not find an account with that email."
             case .emailAlreadyInUse:
-                return "This email is already in use."
+                return "An account already exists for this email. Please sign in instead."
             case .weakPassword:
-                return "Choose a stronger password with at least 6 characters."
+                return "Please choose a stronger password with at least 6 characters."
             case .invalidEmail:
-                return "That email address is invalid."
+                return "Please enter a valid email address."
+            case .invalidCredential:
+                return "The email or password you entered does not match our records."
+            case .missingEmail:
+                return "Please enter your email address."
             case .networkError:
-                return "Network error. Check your connection and try again."
+                return "We could not connect to the network. Check your connection and try again."
             case .tooManyRequests:
-                return "Too many attempts. Try again in a few minutes."
+                return "Too many attempts. Please wait a few minutes and try again."
             case .userDisabled:
-                return "This account has been disabled."
+                return "This account has been disabled. Contact support for help."
+            case .credentialAlreadyInUse:
+                return "That sign-in method is already linked to another account."
+            case .accountExistsWithDifferentCredential:
+                return "An account already exists with a different sign-in method. Use the original method to sign in."
+            case .operationNotAllowed:
+                return "This sign-in method is currently unavailable. Please try another option."
+            case .invalidActionCode:
+                return "That reset link is invalid. Please request a new one."
+            case .expiredActionCode:
+                return "That reset link has expired. Please request a new one."
+            case .requiresRecentLogin:
+                return "Please sign in again to continue."
             default:
                 break
             }
         }
-        return nsError.localizedDescription
+        if nsError.domain == FirestoreErrorDomain {
+            return "Your account was created, but setup did not finish. Please sign in to continue."
+        }
+        return "We could not complete that request. Please try again."
+    }
+
+    private func presentError(title: String, message: String) {
+        errorTitle = title
+        errorMessage = message
+        showErrorSheet = true
     }
 }

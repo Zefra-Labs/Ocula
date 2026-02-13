@@ -67,7 +67,9 @@ struct SettingsSecurityDetailView: View {
     var body: some View {
         SettingsScaffold(title: "Security") {
             SettingsList {
-                Section {
+                Section(footer: Text("Understand what data and information the Ocula app collects by reading the Terms of Use and Privacy Policy.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)) {
                     Toggle("Use Face ID", isOn: $faceId)
                         .tint(.blue)
 

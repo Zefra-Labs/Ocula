@@ -36,15 +36,15 @@ struct SecondaryButtonStyle: ButtonStyle {
 }
 struct PrimaryLightButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
+        let backgroundOpacity = configuration.isPressed ? 0.30 : 0.45
         configuration.label
             .font(AppTheme.Fonts.medium(16))
             .foregroundColor(.white)
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(AppTheme.Colors.accent)
+            .background(AppTheme.Colors.accent.opacity(backgroundOpacity))
             .cornerRadius(25)
-            .opacity(configuration.isPressed ? 0.20 : 0.40)
     }
 }
 struct PrimaryAuthButtonStyle: ButtonStyle {
@@ -62,15 +62,14 @@ struct PrimaryAuthButtonStyle: ButtonStyle {
 }
 struct SecondaryLightButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
+        let backgroundOpacity = configuration.isPressed ? 0.20 : 0.30
         configuration.label
             .font(AppTheme.Fonts.medium(16))
             .foregroundColor(.white)
             .padding()
             .frame(maxWidth: .infinity)
             .frame(height: 50)
-            .background(AppTheme.Colors.secondary)
+            .background(AppTheme.Colors.secondary.opacity(backgroundOpacity))
             .cornerRadius(25)
-            .opacity(configuration.isPressed ? 0.20 : 0.40)
     }
 }
-

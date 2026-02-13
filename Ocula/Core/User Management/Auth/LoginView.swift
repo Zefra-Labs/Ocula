@@ -63,9 +63,6 @@ struct LoginView: View {
                         onForgotPassword()
                     }
 
-                    if let errorMessage = viewModel.errorMessage {
-                        AuthInlineMessage(text: errorMessage, style: .error)
-                    }
                 }
 
             }
@@ -88,6 +85,7 @@ struct LoginView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.bottom, AppTheme.Spacing.xxl)
         .disabled(viewModel.isLoading)
+        .preferredColorScheme(.dark)
     }
 
     private var emailError: String? {

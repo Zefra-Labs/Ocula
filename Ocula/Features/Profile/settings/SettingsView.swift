@@ -50,21 +50,45 @@ private extension SettingsView {
                 actionRow(
                     icon: "person.fill",
                     title: "Profile",
-                    subtitle: "Manage your profile details like email, nickname and more",
+                    subtitle: "Manage your profile and account info like email, nickname, and more",
+                    destination: AnyView(SettingsAccountView()),
+                    style: .list
+                )
+                actionRow(
+                    icon: "lock.fill",
+                    title: "Privacy & Security",
+                    subtitle: "Manage your account's priavacy, security and data controls",
+                    destination: AnyView(SettingsSecurityView()),
+                    style: .list
+                )
+                actionRow(
+                    icon: "bell.fill",
+                    title: "Notifications",
+                    subtitle: "Manage your account's push notification preferences",
+                    destination: AnyView(SettingsSecurityView()),
+                    style: .list
+                )
+                
+            }
+            Section(header: SettingsSectionHeader(title: "Trips & Devices")) {
+                actionRow(
+                    icon: "point.topright.filled.arrow.triangle.backward.to.point.bottomleft.scurvepath",
+                    title: "Trips",
+                    subtitle: "Manage preferences and settings for trips that your Ocula records",
                     destination: AnyView(SettingsAccountView()),
                     style: .list
                 )
 
                 actionRow(
-                    icon: "lock.fill",
-                    title: "Privacy & Security",
-                    subtitle: "Manage your account's security and data controls",
+                    icon: "car.fill",
+                    title: "Devices",
+                    subtitle: "Manage, add or remove Ocula devices connected to your account ",
                     destination: AnyView(SettingsSecurityView()),
                     style: .list
                 )
             }
 
-            Section(header: SettingsSectionHeader(title: "App")) {
+            Section(header: SettingsSectionHeader(title: "App Settings")) {
                 actionRow(
                     icon: "car.fill",
                     title: "Car",
@@ -73,67 +97,45 @@ private extension SettingsView {
                     style: .list
                 )
             }
-
-            Section(header: SettingsSectionHeader(title: "Account Settings")) {
+            Section(header: SettingsSectionHeader(title: "Emergency SOS")) {
                 actionRow(
-                    icon: "person.fill",
-                    title: "Profile",
-                    subtitle: "Manage your profile details like email, nickname and more",
+                    icon: "sos.circle.fill",
+                    title: "Emergency SOS",
+                    subtitle: "Manage preferences for your Ocula's Emergency SOS system",
+                    destination: AnyView(SettingsSecurityView()),
+                    style: .list
+                )
+            }
+
+            Section(header: SettingsSectionHeader(title: "")) {
+                actionRow(
+                    icon: "book.pages.fill",
+                    title: "User Guides",
+                    subtitle: "Search and view user guides and manuals for any Ocula device",
                     destination: AnyView(SettingsAccountView()),
                     style: .list
                 )
-
                 actionRow(
-                    icon: "car.fill",
-                    title: "Car",
-                    subtitle: "Driver, vehicle, and color",
+                    icon: "info.circle.text.page.fill",
+                    title: "App Information",
+                    subtitle: "View app information, version information and debug information",
                     destination: AnyView(SettingsSecurityView()),
                     style: .list
                 )
-            }
-
-            Section(header: SettingsSectionHeader(title: "Preferences")) {
                 actionRow(
-                    icon: "slider.horizontal.3",
-                    title: "Preferences",
-                    subtitle: "Appearance, notifications, and units",
-                    destination: AnyView(SettingsPreferencesView()),
-                    style: .list
-                )
-
-                actionRow(
-                    icon: "lock.fill",
-                    title: "Privacy & Security",
-                    subtitle: "Permissions and data controls",
-                    destination: AnyView(SettingsSecurityView()),
+                    icon: "books.vertical.fill",
+                    title: "Legal Information",
+                    subtitle: "View the Ocula Privacy Policy, Terms of Service and other legal information",
+                    destination: AnyView(SettingsLegalView()),
                     style: .list
                 )
             }
-
-            Section(header: SettingsSectionHeader(title: "Group Settings")) {
-                actionRow(
-                    icon: "wand.and.stars",
-                    title: "Weekly driving report",
-                    subtitle: "Your habits, highlights, and improvements",
-                    destination: AnyView(SettingsSupportView()),
-                    style: .list
-                )
-
-                actionRow(
-                    icon: "chart.line.uptrend.xyaxis",
-                    title: "Compare time periods",
-                    subtitle: "See how your score changed",
-                    destination: AnyView(SettingsSupportView()),
-                    style: .list
-                )
-            }
-
-            Section(header: SettingsSectionHeader(title: "Settings")) {
+            Section(header: SettingsSectionHeader(title: "")) {
                 actionRow(
                     icon: "rectangle.portrait.and.arrow.right",
                     iconColor: AppTheme.Colors.destructive,
                     title: "Sign Out",
-                    subtitle: "Sign out of your account on this device",
+                    subtitle: "Sign out of your account on this device only",
                     action: {
                         animateIcon = true
                         session.signOut { success in

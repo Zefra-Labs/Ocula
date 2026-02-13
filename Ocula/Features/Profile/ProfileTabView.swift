@@ -96,12 +96,6 @@ private extension ProfileView {
 
             TimeRangePickerView(selection: $selectedRange)
                 .padding(.horizontal, AppTheme.Spacing.sm)
-
-            if let lastUpdated = viewModel.stats.lastUpdated {
-                Text("Updated \(lastUpdated.formatted(date: .abbreviated, time: .shortened))")
-                    .font(AppTheme.Fonts.medium(11))
-                    .foregroundColor(AppTheme.Colors.secondary)
-            }
         }
     }
 
@@ -329,7 +323,7 @@ private extension ProfileView {
 
 private extension ProfileView {
     var driverNickname: String {
-        session.user?.driverNickname ?? "Night Runner"
+        session.user?.driverNickname ?? "Ocula Driver"
     }
 
     func loadProfileStats() {

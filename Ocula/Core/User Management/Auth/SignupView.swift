@@ -37,6 +37,7 @@ struct SignUpView: View {
             }
 
             VStack(alignment: .leading, spacing: 0) {
+                
                 Spacer()
                 VStack(alignment: .leading, spacing: 16) {
                     if step == .email {
@@ -78,9 +79,6 @@ struct SignUpView: View {
                         }
                     }
 
-                    if let errorMessage = viewModel.errorMessage {
-                        AuthInlineMessage(text: errorMessage, style: .error)
-                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -111,6 +109,7 @@ struct SignUpView: View {
         .padding(.bottom, AppTheme.Spacing.xxl)
         .frame(maxWidth: .infinity, alignment: .leading)
         .disabled(viewModel.isLoading)
+        .preferredColorScheme(.dark)
     }
 
     private var emailError: String? {

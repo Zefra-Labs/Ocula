@@ -41,6 +41,7 @@ struct ForgotPasswordView: View {
 
                             if let errorMessage = viewModel.errorMessage {
                                 AuthInlineMessage(text: errorMessage, style: .error)
+                                
                             }
                     }
 
@@ -59,6 +60,7 @@ struct ForgotPasswordView: View {
         .onAppear {
             viewModel.clearErrors()
         }
+        .preferredColorScheme(.dark)
     }
 
     private var resetEmailError: String? {
@@ -67,7 +69,6 @@ struct ForgotPasswordView: View {
         }
         return nil
     }
-
     private func handleReset() {
         showValidation = true
         guard viewModel.canSubmitReset else { return }
